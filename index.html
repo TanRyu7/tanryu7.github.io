@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lain@thewired:~$</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0e1726;
+  --crt:#121d30;
+  --green:#7fc8f8;
+  --green-d:#3a7bd5;
+  --green-dim:#24405f;
+  --amber:#ffd87a;
+  --cyan:#a8e6ff;
+  --red:#ff8fa3;
+  --white:#eaf4ff;
+  --gray:#7d92ad;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void);
+  color:var(--green);
+  font-family:'Share Tech Mono',monospace;
+  font-size:15px;
+  line-height:1.7;
+  overflow-x:hidden;
+  cursor:default;
+}
+/* scanlines + flicker */
+body::before{
+  content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,0)0,rgba(255,255,255,0)2px,rgba(13,29,48,.10)3px,rgba(255,255,255,0)4px);
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:9997;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 0%,rgba(127,200,248,.06)0%,transparent 55%);
+  animation:flick 9s infinite;
+}
+@keyframes flick{0%,100%{opacity:1}}
+
+/* ===== BOOT SCREEN ===== */
+#boot{
+  position:fixed;inset:0;z-index:10000;background:var(--void);
+  padding:3rem;font-size:14px;color:var(--green);overflow:hidden;
+}
+#boot .bl{opacity:0;white-space:pre-wrap}
+#boot .ok{color:var(--green)}
+#boot .warn{color:var(--amber)}
+#boot .err{color:var(--red)}
+#boot .dim{color:var(--gray)}
+.boot-hide{animation:bootout .6s ease forwards}
+@keyframes bootout{to{opacity:0;visibility:hidden}}
+
+/* ===== GLITCH OVERLAY (scroll-triggered) ===== */
+#glitch{position:fixed;inset:0;z-index:9990;pointer-events:none;opacity:0;}
+#glitch.go{animation:glitchflash .5s steps(2) 2}
+@keyframes glitchflash{0%{opacity:0}25%{opacity:.5;transform:translateX(4px)}50%{opacity:0}75%{opacity:.4;transform:translateX(-4px)}100%{opacity:0}}
+.glitch-bar{position:absolute;left:0;right:0;height:2px;background:var(--cyan);opacity:.6}
+
+/* ===== NAV ===== */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:.6rem 2rem;background:rgba(6,8,7,.92);
+  border-bottom:1px solid var(--green-dim);
+  backdrop-filter:blur(2px);
+}
+.nav-l{font-family:'VT323',monospace;font-size:1.2rem;color:var(--green);letter-spacing:2px;text-decoration:none;text-shadow:0 0 8px var(--green-d)}
+.nav-links{display:flex;gap:1.8rem;list-style:none}
+.nav-links a{color:var(--gray);text-decoration:none;font-size:.72rem;letter-spacing:1px;text-transform:uppercase;transition:.2s}
+.nav-links a:hover{color:var(--green);text-shadow:0 0 6px var(--green-d)}
+
+/* ===== HERO ===== */
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:6rem 2rem 4rem;position:relative;max-width:1000px;margin:0 auto}
+.prompt-line{font-size:.85rem;color:var(--gray);margin-bottom:1.5rem}
+.prompt-line .u{color:var(--cyan)}
+.prompt-line .p{color:var(--green)}
+.hero-name{
+  font-family:'VT323',monospace;
+  font-size:clamp(3.5rem,11vw,9rem);
+  line-height:.85;color:var(--white);letter-spacing:3px;
+  text-shadow:0 0 18px rgba(57,255,20,.45),3px 0 var(--red),-3px 0 var(--cyan);
+  margin-bottom:1rem;position:relative;
+}
+.hero-name.glitching{animation:textglitch .25s steps(2) infinite}
+@keyframes textglitch{0%{text-shadow:0 0 18px rgba(57,255,20,.45),3px 0 var(--red),-3px 0 var(--cyan);transform:translate(0)}50%{text-shadow:0 0 18px rgba(57,255,20,.45),-4px 0 var(--red),4px 0 var(--cyan);transform:translate(2px,-1px)}100%{text-shadow:0 0 18px rgba(57,255,20,.45),3px 0 var(--red),-3px 0 var(--cyan);transform:translate(0)}}
+.hero-role{font-size:1rem;color:var(--green);letter-spacing:2px;margin-bottom:.4rem;min-height:1.5rem}
+.hero-role .c{animation:blink 1s step-end infinite;color:var(--green)}
+@keyframes blink{50%{opacity:0}}
+.hero-sub{font-size:.85rem;color:var(--gray);max-width:520px;margin-bottom:2.5rem;line-height:1.9}
+.hero-sub .hl{color:var(--green)}
+.hero-links{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:3rem}
+.hbtn{display:inline-block;padding:.6rem 1.4rem;border:1px solid var(--green-d);color:var(--green);text-decoration:none;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;transition:.2s;background:rgba(57,255,20,.03)}
+.hbtn:hover{background:var(--green);color:var(--void);box-shadow:0 0 18px rgba(57,255,20,.5)}
+.hbtn.alt{border-color:var(--gray);color:var(--gray)}
+.hbtn.alt:hover{background:var(--gray);color:var(--void);box-shadow:none}
+.scroll-hint{font-size:.7rem;color:var(--green-d);letter-spacing:2px;animation:bobup 2s ease-in-out infinite}
+@keyframes bobup{50%{transform:translateY(-5px)}}
+
+/* ===== TERMINAL ===== */
+#terminal-sec{max-width:1000px;margin:0 auto;padding:4rem 2rem}
+.term{background:rgba(3,5,4,.95);border:1px solid var(--green-dim);border-radius:6px;overflow:hidden;box-shadow:0 0 30px rgba(57,255,20,.08)}
+.term-bar{background:rgba(57,255,20,.06);padding:.5rem 1rem;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--green-dim)}
+.term-dot{width:11px;height:11px;border-radius:50%}
+.term-dot.r{background:#ff5f56}.term-dot.y{background:#ffbd2e}.term-dot.g{background:#27c93f}
+.term-title{margin-left:1rem;font-size:.72rem;color:var(--gray);letter-spacing:1px}
+.term-body{padding:1.2rem;min-height:280px;max-height:380px;overflow-y:auto;font-size:.85rem}
+.term-body::-webkit-scrollbar{width:6px}
+.term-body::-webkit-scrollbar-thumb{background:var(--green-dim)}
+.term-out{white-space:pre-wrap;margin-bottom:.3rem;color:var(--white)}
+.term-out .g{color:var(--green)}
+.term-out .a{color:var(--amber)}
+.term-out .c{color:var(--cyan)}
+.term-out .gr{color:var(--gray)}
+.term-in{display:flex;align-items:center;gap:.5rem}
+.term-in .ps{color:var(--cyan);white-space:nowrap}
+.term-in .ps .t{color:var(--green)}
+#cmd{background:transparent;border:none;outline:none;color:var(--green);font-family:'Share Tech Mono',monospace;font-size:.85rem;flex:1;caret-color:var(--green)}
+.term-hint{font-size:.7rem;color:var(--gray);margin-top:.8rem;text-align:center;letter-spacing:1px}
+.term-hint .k{color:var(--green-d)}
+
+/* ===== SECTIONS ===== */
+.sec{max-width:1000px;margin:0 auto;padding:5rem 2rem}
+.sec-head{display:flex;align-items:center;gap:1rem;margin-bottom:2.5rem}
+.sec-tag{font-family:'VT323',monospace;font-size:.95rem;color:var(--void);background:var(--green);padding:.05rem .6rem;letter-spacing:1px}
+.sec-title{font-family:'VT323',monospace;font-size:clamp(1.8rem,4vw,2.6rem);color:var(--white);letter-spacing:2px;text-shadow:0 0 10px rgba(57,255,20,.25)}
+.sec-line{flex:1;height:1px;background:linear-gradient(to right,var(--green-d),transparent)}
+.sec-path{font-size:.7rem;color:var(--gray);margin-bottom:1.5rem;letter-spacing:1px}
+.sec-path .g{color:var(--green-d)}
+
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:3rem;align-items:start}
+.about-text p{color:var(--white);font-size:.86rem;line-height:2;margin-bottom:1.1rem}
+.about-text .hl{color:var(--green);text-shadow:0 0 6px var(--green-dim)}
+.about-text .cy{color:var(--cyan)}
+.fileblock{border:1px solid var(--green-dim);background:rgba(57,255,20,.02)}
+.fb-row{display:flex;justify-content:space-between;padding:.55rem .9rem;border-bottom:1px solid rgba(57,255,20,.06);font-size:.74rem}
+.fb-row:last-child{border-bottom:none}
+.fb-k{color:var(--gray);text-transform:uppercase;font-size:.62rem;letter-spacing:1px}
+.fb-v{color:var(--white);text-align:right}
+.fb-v.g{color:var(--green)}
+
+/* EXPERIENCE */
+.exp{display:grid;grid-template-columns:160px 1fr;gap:1.8rem;padding:2rem 0;border-bottom:1px solid rgba(57,255,20,.07)}
+.exp:last-child{border-bottom:none}
+.exp-dt{font-family:'VT323',monospace;font-size:.92rem;color:var(--cyan);letter-spacing:1px;margin-bottom:.2rem}
+.exp-co{font-size:.64rem;color:var(--gray);letter-spacing:1px;text-transform:uppercase}
+.exp-role{font-family:'VT323',monospace;font-size:1.4rem;color:var(--white);margin-bottom:.6rem;letter-spacing:1px}
+.exp-d{font-size:.8rem;color:var(--gray);line-height:1.85;margin-bottom:.9rem}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem}
+.tag{font-size:.58rem;color:var(--green-d);border:1px solid var(--green-dim);padding:.1rem .5rem;letter-spacing:1px;text-transform:uppercase;transition:.15s}
+.tag:hover{color:var(--green);border-color:var(--green-d);box-shadow:0 0 8px rgba(57,255,20,.2)}
+
+/* PROJECTS */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1px;background:var(--green-dim);border:1px solid var(--green-dim)}
+.pc{background:var(--void);padding:2rem;position:relative;transition:.2s}
+.pc:hover{background:rgba(57,255,20,.03)}
+.pc::before{content:attr(data-n);font-family:'VT323',monospace;font-size:4rem;color:rgba(57,255,20,.05);position:absolute;top:.5rem;right:1rem}
+.pt{font-size:.6rem;color:var(--amber);letter-spacing:2px;text-transform:uppercase;margin-bottom:.7rem}
+.pn{font-family:'VT323',monospace;font-size:1.5rem;color:var(--white);margin-bottom:.9rem;letter-spacing:1px;line-height:1.1}
+.pd{font-size:.78rem;color:var(--gray);line-height:1.85;margin-bottom:1.2rem}
+.pl{font-size:.62rem;color:var(--green);text-decoration:none;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--green-dim);padding-bottom:2px;transition:.2s}
+.pl:hover{color:var(--cyan);border-color:var(--cyan)}
+
+/* SKILLS */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--green-dim);border:1px solid var(--green-dim);margin-bottom:2rem}
+.scol{background:var(--void);padding:1.6rem 1.4rem}
+.sch{font-size:.58rem;color:var(--amber);letter-spacing:2px;text-transform:uppercase;margin-bottom:1.1rem;padding-bottom:.6rem;border-bottom:1px solid rgba(255,176,0,.2)}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;font-size:.73rem;color:var(--white)}
+.bar{width:70px;height:6px;background:rgba(57,255,20,.1);position:relative;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--green);box-shadow:0 0 6px var(--green-d);display:block}
+.certs{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem}
+.cert{border:1px solid var(--green-dim);padding:.9rem 1.1rem;display:flex;gap:.9rem;align-items:flex-start;transition:.2s}
+.cert:hover{border-color:var(--green-d);box-shadow:0 0 12px rgba(57,255,20,.1)}
+.cico{font-family:'VT323',monospace;font-size:1.3rem;color:var(--cyan);min-width:1.8rem}
+.cn{font-size:.73rem;color:var(--white);margin-bottom:.15rem}
+.cs{font-size:.62rem;color:var(--gray)}
+
+/* TRANSMISSIONS */
+.tx{display:grid;grid-template-columns:90px 1fr 30px;gap:1.5rem;align-items:center;padding:1.5rem 1rem;border-bottom:1px solid rgba(57,255,20,.06);text-decoration:none;transition:.15s}
+.tx:hover{background:rgba(57,255,20,.03)}
+.txd{font-family:'VT323',monospace;font-size:.8rem;color:var(--green-d);letter-spacing:1px}
+.txt{font-family:'VT323',monospace;font-size:1.15rem;color:var(--white);margin-bottom:.2rem;line-height:1.25}
+.txs{font-size:.72rem;color:var(--gray);line-height:1.55}
+.txa{color:var(--green-d);transition:.15s}
+.tx:hover .txa{color:var(--green);transform:translateX(4px)}
+
+/* CONTACT */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:3rem}
+.cman p{font-size:.82rem;color:var(--gray);line-height:2;margin-bottom:1rem}
+.cman .hl{color:var(--green)}
+.cman .cy{color:var(--cyan)}
+.dials{display:flex;flex-direction:column;gap:.7rem}
+.dial{display:flex;align-items:center;gap:1rem;padding:.85rem 1.1rem;border:1px solid var(--green-dim);color:var(--white);text-decoration:none;font-size:.76rem;transition:.2s}
+.dial:hover{border-color:var(--green-d);background:rgba(57,255,20,.03);box-shadow:0 0 12px rgba(57,255,20,.1)}
+.dico{font-family:'VT323',monospace;font-size:1.1rem;color:var(--cyan);min-width:1.4rem}
+.dlab{flex:1}
+.darr{color:var(--green-dim)}
+
+/* FOOTER */
+footer{border-top:1px solid var(--green-dim);padding:1.4rem 2rem;display:flex;justify-content:space-between;align-items:center;font-size:.62rem;color:var(--gray);letter-spacing:1px;max-width:1000px;margin:0 auto;flex-wrap:wrap;gap:.5rem}
+.fq{color:var(--green-d);font-size:.66rem}
+
+/* ===== TUX PENGUIN ===== */
+#tux{position:fixed;bottom:-120px;left:30px;z-index:8000;width:80px;cursor:pointer;transition:transform .2s;filter:drop-shadow(0 0 10px rgba(57,255,20,.3))}
+#tux:hover{transform:scale(1.1) rotate(-5deg)}
+#tux.show{animation:tuxrise 1s ease forwards}
+@keyframes tuxrise{to{bottom:20px}}
+#tux.walk{animation:tuxwalk 8s linear forwards}
+@keyframes tuxwalk{0%{left:-100px;bottom:20px}100%{left:110vw;bottom:20px}}
+.tux-bubble{position:fixed;bottom:110px;left:20px;z-index:8001;background:var(--void);border:1px solid var(--green);padding:.6rem 1rem;font-size:.72rem;color:var(--green);max-width:220px;opacity:0;transition:opacity .3s;border-radius:4px;box-shadow:0 0 12px rgba(57,255,20,.2)}
+.tux-bubble.show{opacity:1}
+.tux-bubble::after{content:'';position:absolute;bottom:-6px;left:30px;width:10px;height:10px;background:var(--void);border-right:1px solid var(--green);border-bottom:1px solid var(--green);transform:rotate(45deg)}
+
+/* fade-in */
+.fade{opacity:0;transform:translateY(12px);transition:opacity .5s,transform .5s}
+.fade.in{opacity:1;transform:none}
+
+@media(max-width:768px){
+  nav{padding:.6rem 1rem}
+  .nav-links{display:none}
+  #hero,.sec,#terminal-sec{padding-left:1.2rem;padding-right:1.2rem}
+  .about-grid,.cgrid{grid-template-columns:1fr;gap:1.8rem}
+  .exp{grid-template-columns:1fr;gap:.4rem}
+  footer{flex-direction:column;text-align:center}
+  #tux{width:60px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<!-- RAIN -->
+<canvas id="rain" style="position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.18"></canvas>
+
+<!-- BOOT -->
+<div id="boot"></div>
+
+<!-- GLITCH -->
+<div id="glitch">
+  <div class="glitch-bar" style="top:20%"></div>
+  <div class="glitch-bar" style="top:45%;background:var(--red)"></div>
+  <div class="glitch-bar" style="top:70%"></div>
+  <div class="glitch-bar" style="top:85%;background:var(--cyan)"></div>
+</div>
+
+<!-- TUX -->
+<svg id="tux" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg" aria-label="Tux the Linux penguin">
+  <ellipse cx="50" cy="115" rx="30" ry="5" fill="rgba(57,255,20,.15)"/>
+  <path d="M50 8 C30 8 22 28 22 52 C22 72 18 88 14 100 C12 108 20 114 30 112 C38 110 42 112 50 112 C58 112 62 110 70 112 C80 114 88 108 86 100 C82 88 78 72 78 52 C78 28 70 8 50 8 Z" fill="#1a1a1a" stroke="#39ff14" stroke-width="1.5"/>
+  <ellipse cx="50" cy="70" rx="22" ry="34" fill="#f0f0f0"/>
+  <ellipse cx="40" cy="38" rx="7" ry="9" fill="#fff"/>
+  <ellipse cx="60" cy="38" rx="7" ry="9" fill="#fff"/>
+  <circle cx="41" cy="40" r="3.5" fill="#000"/>
+  <circle cx="59" cy="40" r="3.5" fill="#000"/>
+  <circle cx="42" cy="39" r="1" fill="#fff"/>
+  <circle cx="60" cy="39" r="1" fill="#fff"/>
+  <path d="M44 48 L56 48 L50 58 Z" fill="#ffb000"/>
+  <path d="M16 100 C12 108 22 112 30 108 L26 96 Z" fill="#ffb000"/>
+  <path d="M84 100 C88 108 78 112 70 108 L74 96 Z" fill="#ffb000"/>
+  <ellipse cx="38" cy="114" rx="10" ry="4" fill="#ffb000"/>
+  <ellipse cx="62" cy="114" rx="10" ry="4" fill="#ffb000"/>
+</svg>
+<div class="tux-bubble" id="tuxbubble">root@thewired: this system runs on Linux. and ambition.</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-l">~/tanmay</a>
+  <ul class="nav-links">
+    <li><a href="#about">whoami</a></li>
+    <li><a href="#experience">history</a></li>
+    <li><a href="#projects">./projects</a></li>
+    <li><a href="#skills">lsblk</a></li>
+    <li><a href="#blog">tail -f</a></li>
+    <li><a href="#contact">ping</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="prompt-line"><span class="u">visitor</span>@<span class="p">thewired</span>:~$ ./connect --target=tanmay_aggarwal</div>
+  <h1 class="hero-name" id="hname">TANMAY</h1>
+  <div class="hero-role" id="hrole"><span class="c">_</span></div>
+  <p class="hero-sub">Cybersecurity & Finance graduate operating at the intersection of <span class="hl">technology risk</span>, <span class="hl">AI governance</span>, and <span class="hl">security operations</span>. Present day. Present time. Always connected to the wired.</p>
+  <div class="hero-links">
+    <a href="https://www.linkedin.com/in/tanmay-aggarwal-2a49811b4" target="_blank" class="hbtn">./linkedin</a>
+    <a href="https://github.com/TanRyu7" target="_blank" class="hbtn alt">./github</a>
+    <a href="#contact" class="hbtn alt">./contact</a>
+  </div>
+  <div class="scroll-hint">▼ scroll to descend into the wired ▼</div>
+</section>
+
+<!-- TERMINAL -->
+<section id="terminal-sec">
+  <div class="term">
+    <div class="term-bar">
+      <span class="term-dot r"></span><span class="term-dot y"></span><span class="term-dot g"></span>
+      <span class="term-title">visitor@thewired: ~/tanmay — bash</span>
+    </div>
+    <div class="term-body" id="termbody">
+      <div class="term-out"><span class="g">Welcome to the Wired.</span> You've connected to Tanmay's node.
+Type <span class="a">help</span> to see what this system can do.
+<span class="gr">(yes, this terminal actually works. try it.)</span></div>
+    </div>
+    <div style="padding:0 1.2rem 1rem">
+      <div class="term-in">
+        <span class="ps"><span class="t">visitor@thewired</span>:~$</span>
+        <input id="cmd" autocomplete="off" spellcheck="false" autofocus>
+      </div>
+    </div>
+  </div>
+  <div class="term-hint">try: <span class="k">whoami</span> · <span class="k">cat about.txt</span> · <span class="k">ls projects/</span> · <span class="k">sudo hire</span> · <span class="k">neofetch</span> · <span class="k">hack</span></div>
+</section>
+
+<!-- ABOUT -->
+<section class="sec" id="about">
+  <div class="sec-head"><span class="sec-tag">01</span><h2 class="sec-title">whoami</h2><div class="sec-line"></div></div>
+  <div class="sec-path"><span class="g">~/tanmay$</span> cat about.txt</div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>I'm a <span class="hl">Cybersecurity and Finance graduate from the University of Western Australia</span>. I study how systems fail, how trust gets exploited, and how organisations can be hardened against threats they haven't imagined yet.</p>
+      <p>Most recently I led a six-person team building an <span class="cy">AI governance and cyber risk evaluation framework for Deloitte's Risk Advisory practice</span> on Microsoft Azure AI Foundry. We modelled threats that didn't have names yet and built controls for risks that didn't exist when the textbooks were written.</p>
+      <p>Before Perth: <span class="hl">Dubai</span>. A finance and risk internship at Nippon Energy, tracing fraud vectors through procure-to-pay flows. I think in three languages and read a system the way some people read a room.</p>
+      <p>I'm building toward <span class="cy">SC-200</span> and targeting Security Analyst and Technology Risk roles. I'm not looking for a job. I'm looking for a <span class="hl">problem worth solving</span>.</p>
+    </div>
+    <div class="fileblock">
+      <div class="fb-row"><span class="fb-k">user</span><span class="fb-v g">tanmay_aggarwal</span></div>
+      <div class="fb-row"><span class="fb-k">host</span><span class="fb-v">perth.wa.node</span></div>
+      <div class="fb-row"><span class="fb-k">degree</span><span class="fb-v">BSc Cyber + Finance</span></div>
+      <div class="fb-row"><span class="fb-k">uni</span><span class="fb-v">UWA // Go8</span></div>
+      <div class="fb-row"><span class="fb-k">shell</span><span class="fb-v">/bin/curiosity</span></div>
+      <div class="fb-row"><span class="fb-k">english</span><span class="fb-v g">PTE 90</span></div>
+      <div class="fb-row"><span class="fb-k">日本語</span><span class="fb-v">N3</span></div>
+      <div class="fb-row"><span class="fb-k">work_rights</span><span class="fb-v g">485 // Mar 2028</span></div>
+      <div class="fb-row"><span class="fb-k">sponsor</span><span class="fb-v g">not required</span></div>
+      <div class="fb-row"><span class="fb-k">status</span><span class="fb-v g">available now</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section class="sec" id="experience">
+  <div class="sec-head"><span class="sec-tag">02</span><h2 class="sec-title">history</h2><div class="sec-line"></div></div>
+  <div class="sec-path"><span class="g">~/tanmay$</span> history | grep work</div>
+  <div class="exp">
+    <div><div class="exp-dt">2025.07</div><div class="exp-co">Deloitte x UWA // Perth</div></div>
+    <div>
+      <div class="exp-role">Cyber Risk & AI Governance Consultant</div>
+      <div class="exp-d">Led a six-person Agile team delivering an AI governance evaluation framework for Deloitte's Risk Advisory practice on Microsoft Azure AI Foundry. Applied OWASP Top 10 for LLMs and MITRE ATT&CK in threat modelling. Ran control testing, maintained a live risk register, and presented a remediation roadmap to senior stakeholders.</div>
+      <div class="tags"><span class="tag">Azure AI Foundry</span><span class="tag">MITRE ATT&CK</span><span class="tag">OWASP LLM</span><span class="tag">Risk Register</span><span class="tag">AI Governance</span></div>
+    </div>
+  </div>
+  <div class="exp">
+    <div><div class="exp-dt">2025.06</div><div class="exp-co">Nippon Energy // Dubai</div></div>
+    <div>
+      <div class="exp-role">Finance Operations & Risk Intern</div>
+      <div class="exp-d">Researched phishing and invoice fraud exposure in energy sector financial workflows. Performed data anomaly detection, identified control gaps in procure-to-pay, and implemented maker-checker verification. Coordinated with IT on access clean-ups and least-privilege documentation.</div>
+      <div class="tags"><span class="tag">Fraud Risk</span><span class="tag">Internal Controls</span><span class="tag">Access Mgmt</span><span class="tag">Data Analysis</span></div>
+    </div>
+  </div>
+  <div class="exp">
+    <div><div class="exp-dt">2024.01</div><div class="exp-co">JSS UWA // Perth</div></div>
+    <div>
+      <div class="exp-role">Treasurer & Director of Finance</div>
+      <div class="exp-d">Directed financial governance, compliance reporting, and stakeholder communications across a 12-month term. Managed budgeting, reconciliations, and grant applications. Liaised with Japanese organisations in English and Japanese.</div>
+      <div class="tags"><span class="tag">Governance</span><span class="tag">Japanese</span><span class="tag">Compliance</span></div>
+    </div>
+  </div>
+  <div class="exp">
+    <div><div class="exp-dt">2023.12</div><div class="exp-co">Inditex // ZARA Perth</div></div>
+    <div>
+      <div class="exp-role">Operations & Cash Management</div>
+      <div class="exp-d">Daily transaction reconciliation, discrepancy investigation, and audit-ready documentation across multiple payment systems. Over two years of client-facing operational experience under strict daily deadlines.</div>
+      <div class="tags"><span class="tag">Reconciliation</span><span class="tag">Audit Docs</span><span class="tag">Operations</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="sec" id="projects">
+  <div class="sec-head"><span class="sec-tag">03</span><h2 class="sec-title">./projects</h2><div class="sec-line"></div></div>
+  <div class="sec-path"><span class="g">~/tanmay$</span> ls -la projects/</div>
+  <div class="pgrid">
+    <div class="pc" data-n="01">
+      <div class="pt">GRC Automation</div>
+      <div class="pn">ACSC Essential Eight Assessor</div>
+      <div class="pd">Python compliance engine that maps security posture against the ACSC Essential Eight (ML1-ML3), finds gaps, and uses AI to generate risk-rated findings with remediation priorities. Automates what GRC consultants do by hand.</div>
+      <div class="tags" style="margin-bottom:1.2rem"><span class="tag">Python</span><span class="tag">Claude API</span><span class="tag">ACSC E8</span></div>
+      <a href="https://github.com/TanRyu7" target="_blank" class="pl">cat README.md →</a>
+    </div>
+    <div class="pc" data-n="02">
+      <div class="pt">AI Risk Advisory</div>
+      <div class="pn">Deloitte Governance Framework</div>
+      <div class="pd">Enterprise AI risk evaluation framework for Deloitte on Azure AI Foundry. OWASP Top 10 for LLMs and MITRE ATT&CK threat modelling. Control testing across prompt injection, data exfiltration, and model bias.</div>
+      <div class="tags" style="margin-bottom:1.2rem"><span class="tag">Azure AI</span><span class="tag">LLM Security</span><span class="tag">Deloitte</span></div>
+      <a href="https://www.linkedin.com/in/tanmay-aggarwal-2a49811b4" target="_blank" class="pl">view case →</a>
+    </div>
+    <div class="pc" data-n="03">
+      <div class="pt">Inditex Hackathon 2026</div>
+      <div class="pn">Atlas // Spatial Map</div>
+      <div class="pd">AI spatial intelligence for retail. Closes the gap between RFID identity and physical location on constantly changing floors. Computer vision + LLMs + real-time inventory fusion. Instant placement routing and phantom-stock detection.</div>
+      <div class="tags" style="margin-bottom:1.2rem"><span class="tag">Computer Vision</span><span class="tag">LLM</span><span class="tag">RFID</span></div>
+      <a href="#" class="pl">view pitch →</a>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="sec" id="skills">
+  <div class="sec-head"><span class="sec-tag">04</span><h2 class="sec-title">lsblk</h2><div class="sec-line"></div></div>
+  <div class="sec-path"><span class="g">~/tanmay$</span> mount --list capabilities</div>
+  <div class="sgrid">
+    <div class="scol">
+      <div class="sch">Security Ops</div>
+      <div class="srow"><span>Sentinel</span><div class="bar"><i style="width:60%"></i></div></div>
+      <div class="srow"><span>MITRE ATT&CK</span><div class="bar"><i style="width:80%"></i></div></div>
+      <div class="srow"><span>Threat Modelling</span><div class="bar"><i style="width:80%"></i></div></div>
+      <div class="srow"><span>Vuln Mgmt</span><div class="bar"><i style="width:60%"></i></div></div>
+      <div class="srow"><span>Incident Response</span><div class="bar"><i style="width:55%"></i></div></div>
+    </div>
+    <div class="scol">
+      <div class="sch">Risk & Compliance</div>
+      <div class="srow"><span>AI Governance</span><div class="bar"><i style="width:95%"></i></div></div>
+      <div class="srow"><span>NIST CSF</span><div class="bar"><i style="width:80%"></i></div></div>
+      <div class="srow"><span>ACSC E8</span><div class="bar"><i style="width:80%"></i></div></div>
+      <div class="srow"><span>Risk Register</span><div class="bar"><i style="width:95%"></i></div></div>
+      <div class="srow"><span>Control Testing</span><div class="bar"><i style="width:80%"></i></div></div>
+    </div>
+    <div class="scol">
+      <div class="sch">Technical</div>
+      <div class="srow"><span>Python</span><div class="bar"><i style="width:80%"></i></div></div>
+      <div class="srow"><span>SQL</span><div class="bar"><i style="width:60%"></i></div></div>
+      <div class="srow"><span>KQL</span><div class="bar"><i style="width:45%"></i></div></div>
+      <div class="srow"><span>Excel</span><div class="bar"><i style="width:95%"></i></div></div>
+      <div class="srow"><span>Azure</span><div class="bar"><i style="width:60%"></i></div></div>
+    </div>
+    <div class="scol">
+      <div class="sch">Finance</div>
+      <div class="srow"><span>Risk Assessment</span><div class="bar"><i style="width:95%"></i></div></div>
+      <div class="srow"><span>Fin Analysis</span><div class="bar"><i style="width:80%"></i></div></div>
+      <div class="srow"><span>Internal Controls</span><div class="bar"><i style="width:80%"></i></div></div>
+      <div class="srow"><span>Reconciliation</span><div class="bar"><i style="width:95%"></i></div></div>
+      <div class="srow"><span>Reporting</span><div class="bar"><i style="width:80%"></i></div></div>
+    </div>
+  </div>
+  <div class="certs">
+    <div class="cert"><div class="cico">S+</div><div><div class="cn">CompTIA Security+</div><div class="cs">booked // Jul 2026</div></div></div>
+    <div class="cert"><div class="cico">SC</div><div><div class="cn">SC-200 Security Ops</div><div class="cs">in progress // Aug 2026</div></div></div>
+    <div class="cert"><div class="cico">90</div><div><div class="cn">PTE Academic</div><div class="cs">superior english</div></div></div>
+    <div class="cert"><div class="cico">N3</div><div><div class="cn">日本語 / Japanese</div><div class="cs">intermediate</div></div></div>
+  </div>
+</section>
+
+<!-- TRANSMISSIONS -->
+<section class="sec" id="blog">
+  <div class="sec-head"><span class="sec-tag">05</span><h2 class="sec-title">tail -f</h2><div class="sec-line"></div></div>
+  <div class="sec-path"><span class="g">~/tanmay$</span> tail -f transmissions.log</div>
+  <a href="https://www.linkedin.com/in/tanmay-aggarwal-2a49811b4" target="_blank" class="tx">
+    <div class="txd">2026.06</div>
+    <div><div class="txt">17 years in defensive security: a conversation with Amit Gupta</div><div class="txs">Ex-Amazon IR Lead. On SIEM, EDR, MITRE ATT&CK, and what the market actually wants.</div></div>
+    <div class="txa">→</div>
+  </a>
+  <a href="https://www.linkedin.com/in/tanmay-aggarwal-2a49811b4" target="_blank" class="tx">
+    <div class="txd">2025.10</div>
+    <div><div class="txt">What does "good" look like in AI?</div><div class="txs">Deloitte capstone reflections. Translating model performance into business action.</div></div>
+    <div class="txa">→</div>
+  </a>
+  <a href="https://www.linkedin.com/in/tanmay-aggarwal-2a49811b4" target="_blank" class="tx">
+    <div class="txd">2026</div>
+    <div><div class="txt">Learning in public: 100 days to Security Analyst</div><div class="txs">Sentinel. Defender. MITRE. KQL. Documenting the grind, day by day.</div></div>
+    <div class="txa">→</div>
+  </a>
+</section>
+
+<!-- CONTACT -->
+<section class="sec" id="contact">
+  <div class="sec-head"><span class="sec-tag">06</span><h2 class="sec-title">ping</h2><div class="sec-line"></div></div>
+  <div class="sec-path"><span class="g">~/tanmay$</span> ping -c ∞ tanmay</div>
+  <div class="cgrid">
+    <div class="cman">
+      <p>Building a team that works at the intersection of technology, risk, and security? <span class="hl">I want to hear about it.</span></p>
+      <p>Based in <span class="cy">Perth, Western Australia</span>. Subclass 485 Graduate Visa, full work rights until March 2028. <span class="hl">No sponsorship required.</span></p>
+      <p>Open to Security Analyst, SOC Analyst, Technology Risk, and GRC roles across Perth, Sydney, and remote. Available immediately.</p>
+      <p>English native. Hindi native. Japanese N3. I read risk in three cultural registers, not one.</p>
+    </div>
+    <div class="dials">
+      <a href="mailto:tanmay9@outlook.com" class="dial"><span class="dico">@</span><span class="dlab">tanmay9@outlook.com</span><span class="darr">→</span></a>
+      <a href="https://www.linkedin.com/in/tanmay-aggarwal-2a49811b4" target="_blank" class="dial"><span class="dico">in</span><span class="dlab">/in/tanmay-aggarwal</span><span class="darr">→</span></a>
+      <a href="https://github.com/TanRyu7" target="_blank" class="dial"><span class="dico">&gt;_</span><span class="dlab">github.com/TanRyu7</span><span class="darr">→</span></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>tanmay@thewired:~$ logout</span>
+  <span class="fq">"No matter where you go, everyone's connected." — Lain</span>
+  <span>Present day. Present time. ﾌﾌﾌ</span>
+</footer>
+
+<script>
+/* ---------- BOOT SEQUENCE ---------- */
+const bootLines=[
+  {t:'[    0.000000] Initializing the Wired protocol v13.0...',c:'dim',d:60},
+  {t:'[    0.000412] Loading Copland OS Enterprise...',c:'',d:80},
+  {t:'[    0.001337] Detecting consciousness layers... <span class="ok">[OK]</span>',c:'',d:120},
+  {t:'[    0.004096] Mounting /dev/reality... <span class="warn">[unstable]</span>',c:'',d:120},
+  {t:'[    0.008192] Establishing connection to node: TANMAY_AGGARWAL',c:'',d:140},
+  {t:'[    0.016384] Verifying identity... <span class="ok">[VERIFIED]</span>',c:'',d:120},
+  {t:'[    0.032768]   > cybersecurity & finance .... <span class="ok">loaded</span>',c:'dim',d:80},
+  {t:'[    0.040000]   > ai governance ............. <span class="ok">loaded</span>',c:'dim',d:80},
+  {t:'[    0.048000]   > work rights (485) ......... <span class="ok">active</span>',c:'dim',d:80},
+  {t:'[    0.065536] Present day...',c:'warn',d:200},
+  {t:'[    0.065537] Present time...',c:'warn',d:300},
+  {t:'<span class="ok">Connection established. Welcome to the Wired.</span>',c:'',d:400},
+];
+const boot=document.getElementById('boot');
+let bi=0;
+function runBoot(){
+  if(bi>=bootLines.length){
+    setTimeout(()=>{boot.classList.add('boot-hide');startHero();initTux();},500);
+    return;
+  }
+  const L=bootLines[bi];
+  const div=document.createElement('div');
+  div.className='bl';
+  div.innerHTML=L.t;
+  div.style.opacity='1';
+  if(L.c)div.style.color=`var(--${L.c==='dim'?'gray':L.c})`;
+  boot.appendChild(div);
+  bi++;
+  setTimeout(runBoot,L.d);
+}
+runBoot();
+
+/* ---------- HERO TYPING ---------- */
+function startHero(){
+  const roles=['security analyst','soc analyst','threat hunter','ai risk consultant','grc analyst'];
+  const el=document.getElementById('hrole');
+  let r=0,ch=0,del=false;
+  function tick(){
+    const cur=roles[r];
+    if(!del){
+      el.innerHTML='&gt; '+cur.slice(0,ch)+'<span class="c">_</span>';
+      ch++;
+      if(ch>cur.length){del=true;setTimeout(tick,1400);return;}
+    }else{
+      el.innerHTML='&gt; '+cur.slice(0,ch)+'<span class="c">_</span>';
+      ch--;
+      if(ch<0){del=false;r=(r+1)%roles.length;ch=0;}
+    }
+    setTimeout(tick,del?40:90);
+  }
+  tick();
+  // occasional name glitch
+  const hn=document.getElementById('hname');
+  setInterval(()=>{
+    if(Math.random()>.6){hn.classList.add('glitching');setTimeout(()=>hn.classList.remove('glitching'),250);}
+  },3000);
+}
+
+/* ---------- TERMINAL ---------- */
+const termbody=document.getElementById('termbody');
+const cmd=document.getElementById('cmd');
+const fs={
+  'about.txt':'Tanmay Aggarwal // Cybersecurity & Finance graduate, UWA.\nLed Deloitte AI governance capstone. Targeting Security Analyst roles.\n485 visa, full work rights, no sponsorship required.',
+  'resume.txt':'Run: open https://github.com/TanRyu7 for the full thing.\nTL;DR: UWA grad, Deloitte AI risk capstone, Nippon Energy intern,\nSecurity+ & SC-200 incoming. Built for SOC and tech risk work.',
+  'secret.txt':'You actually looked. I respect that.\nHere is the truth: I will outwork anyone you hire. Try me.'
+};
+function print(html){const d=document.createElement('div');d.className='term-out';d.innerHTML=html;termbody.appendChild(d);termbody.scrollTop=termbody.scrollHeight;}
+const commands={
+  help(){return `<span class="g">available commands:</span>
+  <span class="a">whoami</span>        who is this
+  <span class="a">about</span>         cat about.txt
+  <span class="a">ls</span>            list files / projects
+  <span class="a">cat [file]</span>    read a file (try about.txt, resume.txt, secret.txt)
+  <span class="a">skills</span>        list capabilities
+  <span class="a">contact</span>       how to reach me
+  <span class="a">neofetch</span>      system info
+  <span class="a">sudo hire</span>     ;)
+  <span class="a">hack</span>          DO NOT RUN THIS
+  <span class="a">clear</span>         clear the screen`;},
+  whoami(){return `<span class="g">tanmay_aggarwal</span> — cybersecurity & finance graduate, perth.\nuid=485(visa) groups=cyber,finance,risk,wired\nshell=/bin/curiosity`;},
+  about(){return fs['about.txt'];},
+  ls(){return `<span class="c">about.txt  resume.txt  secret.txt</span>\n<span class="g">projects/</span>\n  01_acsc_essential_eight_assessor\n  02_deloitte_ai_governance\n  03_atlas_inditex_hackathon`;},
+  'ls projects/'(){return this.ls();},
+  cat(a){if(!a)return '<span class="a">usage: cat [filename]</span>';if(fs[a])return fs[a];return `<span class="err">cat: ${a}: No such file</span> <span class="gr">(try: about.txt, resume.txt, secret.txt)</span>`;},
+  skills(){return `<span class="g">security:</span> sentinel, mitre att&ck, threat modelling\n<span class="g">risk:</span> ai governance, nist csf, acsc e8, risk register\n<span class="g">technical:</span> python, sql, kql, azure\n<span class="g">finance:</span> risk assessment, internal controls, reconciliation`;},
+  contact(){return `<span class="g">email:</span> tanmay9@outlook.com\n<span class="g">linkedin:</span> /in/tanmay-aggarwal\n<span class="g">github:</span> github.com/TanRyu7`;},
+  neofetch(){return `<span class="g">        .--.</span>      <span class="c">tanmay@thewired</span>
+<span class="g">       |o_o |</span>     -----------------
+<span class="g">       |:_/ |</span>     <span class="a">OS:</span> Copland OS Enterprise
+<span class="g">      //   \\ \\</span>    <span class="a">Host:</span> Perth.WA.Node
+<span class="g">     (|     | )</span>   <span class="a">Kernel:</span> 4.85-visa-active
+<span class="g">    /'\\_   _/'\\</span>   <span class="a">Uptime:</span> graduate, hungry
+<span class="g">    \\___)=(___/</span>   <span class="a">Shell:</span> /bin/curiosity
+                  <span class="a">Langs:</span> EN / HI / JP(N3)
+                  <span class="a">Status:</span> <span class="g">available now</span>`;},
+  'sudo hire'(){return `<span class="g">[sudo] password for recruiter:</span> ********\n<span class="ok">Access granted.</span>\nExcellent choice. Initiating onboarding...\n<span class="c">Reach out: tanmay9@outlook.com</span> :)`;},
+  sudo(a){if(a==='hire')return this['sudo hire']();return `<span class="err">sudo: ${a||''}: command not found</span> <span class="gr">(try: sudo hire)</span>`;},
+  hack(){runHack();return '';},
+  clear(){termbody.innerHTML='';return '';},
+  echo(a){return a||'';},
+  pwd(){return '/home/tanmay/the_wired';},
+  date(){return new Date().toString();},
+  exit(){return '<span class="gr">nice try. you can never really leave the wired.</span>';},
+};
+cmd.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  const raw=cmd.value.trim();
+  if(!raw){return;}
+  print(`<span class="c">visitor@thewired</span>:~$ ${raw.replace(/</g,'&lt;')}`);
+  const parts=raw.split(' ');
+  const base=parts[0];
+  const arg=parts.slice(1).join(' ');
+  let out='';
+  if(commands[raw]){out=commands[raw]();}
+  else if(commands[base]){out=commands[base](arg);}
+  else{out=`<span class="err">command not found: ${base}</span> <span class="gr">type 'help'</span>`;}
+  if(out)print(out);
+  cmd.value='';
+});
+document.getElementById('terminal-sec').addEventListener('click',()=>cmd.focus());
+
+/* ---------- FAKE HACK SEQUENCE ---------- */
+function runHack(){
+  const seq=[
+    '<span class="err">INITIATING BREACH...</span>',
+    'accessing mainframe <span class="a">[████░░░░░░] 40%</span>',
+    'bypassing firewall <span class="a">[███████░░░] 70%</span>',
+    'downloading visitor data <span class="a">[██████████] 100%</span>',
+    '<span class="err">stealing your browser history...</span>',
+    '<span class="err">accessing your webcam...</span>',
+    '<span class="err">encrypting all your files...</span>',
+    '<span class="warn">...</span>',
+    '<span class="warn">...just kidding.</span>',
+    '<span class="ok">I would never. I am one of the good ones. :)</span>',
+    '<span class="gr">(this is what a security mindset looks like. now hire me.)</span>',
+  ];
+  let i=0;
+  document.body.style.transition='none';
+  function step(){
+    if(i>=seq.length){return;}
+    print(seq[i]);
+    if(i<7){triggerGlitch();}
+    i++;
+    setTimeout(step,i<7?500:700);
+  }
+  step();
+}
+
+/* ---------- GLITCH ON SCROLL ---------- */
+const glitch=document.getElementById('glitch');
+function triggerGlitch(){
+  glitch.classList.remove('go');void glitch.offsetWidth;glitch.classList.add('go');
+}
+let lastG=0;
+window.addEventListener('scroll',()=>{
+  const now=Date.now();
+  if(now-lastG>4000&&Math.random()>.7){triggerGlitch();lastG=now;}
+},{passive:true});
+
+/* ---------- TUX PENGUIN ---------- */
+function initTux(){
+  const tux=document.getElementById('tux');
+  const bubble=document.getElementById('tuxbubble');
+  let shown=false,walked=false;
+  const lines=[
+    'root@thewired: this system runs on Linux. and ambition.',
+    'psst. hire him. trust me, I am a penguin.',
+    'sudo apt-get install tanmay // best decision you will make.',
+    'I have seen his commits. they are clean. hire him.',
+    'no bloatware here. just a graduate who ships.'
+  ];
+  // show tux after scrolling into projects
+  window.addEventListener('scroll',()=>{
+    const sc=window.scrollY;
+    if(sc>window.innerHeight*1.5&&!shown){
+      shown=true;tux.classList.add('show');
+      setTimeout(()=>{bubble.classList.add('show');},1200);
+      setTimeout(()=>{bubble.classList.remove('show');},6000);
+    }
+  },{passive:true});
+  let clicks=0;
+  tux.addEventListener('click',()=>{
+    clicks++;
+    bubble.textContent=lines[clicks%lines.length];
+    bubble.classList.add('show');
+    clearTimeout(tux._t);
+    tux._t=setTimeout(()=>bubble.classList.remove('show'),4000);
+    // easter egg: triple click = tux walks across
+    if(clicks>=3&&!walked){
+      walked=true;bubble.classList.remove('show');
+      tux.classList.remove('show');tux.classList.add('walk');
+      setTimeout(()=>{tux.classList.remove('walk');tux.style.left='30px';tux.classList.add('show');walked=false;clicks=0;},8000);
+    }
+  });
+}
+
+
+/* ---------- SOFT RAIN ---------- */
+(function(){
+  const c=document.getElementById('rain');if(!c)return;
+  const x=c.getContext('2d');
+  let w,h,drops;
+  function size(){w=c.width=innerWidth;h=c.height=innerHeight;drops=[];for(let i=0;i<90;i++){drops.push({x:Math.random()*w,y:Math.random()*h,l:Math.random()*14+8,v:Math.random()*3+3});}}
+  size();addEventListener('resize',size);
+  function draw(){
+    x.clearRect(0,0,w,h);
+    x.strokeStyle='rgba(168,230,255,.35)';x.lineWidth=1;x.lineCap='round';
+    drops.forEach(d=>{
+      x.beginPath();x.moveTo(d.x,d.y);x.lineTo(d.x,d.y+d.l);x.stroke();
+      d.y+=d.v;if(d.y>h){d.y=-d.l;d.x=Math.random()*w;}
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ---------- FADE-IN ---------- */
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.08});
+document.querySelectorAll('.exp,.pc,.scol,.cert,.tx,.dial,.about-grid,.sec-head').forEach(el=>{el.classList.add('fade');io.observe(el);});
+</script>
+</body>
+</html>
